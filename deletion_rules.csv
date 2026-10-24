@@ -1,0 +1,5 @@
+id,data_type,retention_days,action,owner_role
+R001,user_data,30,delete,admin
+R002,audit_log,365,retain,compliance
+R003,temp_cache,7,redact,system
+R004,pii_record,90,anonymize,privacy_officer
