@@ -270,4 +270,4 @@ GhostTrace AI focuses on **verifiable deletion, not just deletion claims**. By c
 
 ---
 
-*Built for the GhostTrace AI hackathon project. Update this README as the implementation, repository structure, and official submission requirements are finalized.*
+
