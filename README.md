@@ -1,157 +1,273 @@
-# HackerRank Orchestrate - October 2026
+# GhostTrace AI 👻
+### Find Every Ghost. Prove Every Deletion.
 
-## Ghost Data Still Exists
+**GhostTrace AI** is an AI-powered data deletion verification agent designed to investigate whether a user's personal data has actually been deleted across a company's data systems — including CSV exports, historical records, local media, and data synchronization or restoration workflows.
 
-Build an AI agent that audits whether a user's personal data was actually deleted.
+A deletion request should mean more than removing one database row. GhostTrace AI searches for remaining personal data, identifies potential identity matches, detects evidence of data resurrection, applies the provided deletion and retention policies, and produces an auditable verification report.
 
-A deletion workflow may report **Complete** while data still exists in databases, logs, support attachments, exports, search indexes, archives, or backups. Sync and restore processes may also bring deleted data back.
+## 🎯 Problem Statement
 
-For each request, the agent must first determine whether deletion was actually requested. It then returns `COMPLETE`, `INCOMPLETE`, or `NOT_APPLICABLE`, reports any remaining data or recreation risk, and produces the ordered remediation and verification steps required to finish an authorized deletion safely.
+When a user requests deletion of their personal data, copies may remain in historical exports, imported datasets, synced systems, or backup and restoration workflows.
 
-Read [`problem_statement.md`](./problem_statement.md) for the complete challenge contract.
+Traditional deletion checks can miss these records, leaving organizations unable to demonstrate that a deletion request has been fully completed.
 
----
+**GhostTrace AI helps answer three questions:**
 
-## Quick Start
+1. Where does the user's personal data still exist?
+2. Could that data return through an active sync, import, or restoration process?
+3. Is the deletion request complete according to the applicable policy and available evidence?
 
-Clone the repository and move into the project directory:
+## 💡 Our Solution
 
-```bash
-git clone https://github.com/interviewstreet/hackerrank-orchestrate-october26.git
-cd hackerrank-orchestrate-october26
-```
+GhostTrace AI combines identity resolution, policy evaluation, resurrection detection, and evidence-based decision-making in one workflow.
 
-Start your AI coding tool from the **repository root** so it automatically reads [`AGENTS.md`](./AGENTS.md) and logs your session turns to `log.txt` in the root directory.
+### Core Features
 
-Build your solution in `code/main.py`, or use another language and document its setup and run command clearly in your README.
+- **Multi-source data ingestion:** Reads supported CSV datasets and extracts available metadata from other supported evidence sources.
+- **Identity resolution:** Matches current and historical identifiers using normalization and evidence-based matching.
+- **Ghost-record detection:** Finds potential remaining personal data across the available dataset.
+- **Policy-aware decisions:** Applies the supplied rules for deletion, redaction, anonymization, or retention.
+- **Resurrection detection:** Identifies evidence of potential reintroduction through sync, import, backup, or restoration workflows.
+- **Evidence-backed results:** Records source references and explanations supporting each finding.
+- **Three-state verification:** Reports `COMPLETE`, `INCOMPLETE`, or `NOT_APPLICABLE` according to the official task definitions.
+- **Structured output:** Generates the required predictions CSV and an investigation transcript.
+- **Automated tests:** Validates identity matching, policy handling, pipeline integration, and output generation.
 
-Your solution must:
+> **Safety principle:** GhostTrace AI should not claim deletion is complete merely because a record was not found. Its conclusion must account for the available evidence, applicable policy, and required verification checks.
 
-- Read the input files from `dataset/`
-- Generate one prediction row for every request in `dataset/deletion_requests.csv`
-- Write the final predictions to `output.csv` in the repository root
-
-Run the starter Python entry point with:
-
-```bash
-python3 code/main.py
-```
-
-The blank template at `dataset/output.csv` is provided as a reference. Your final generated file for submission must be the root-level `output.csv`.
-
-
-## Dataset
-
-All participant-facing files are in `dataset/`:
-
-| File | Contents |
-| --- | --- |
-| `deletion_requests.csv` | 518 requests |
-| `sample_deletion_requests.csv` | 32 sample requests |
-| `sample_output.csv` | Correct sample answers |
-| `user_identities.csv` | Current user identities |
-| `user_audit_log.csv` | Historical identity changes |
-| `system_activity.csv` | Activity across services and data processes |
-| `deletion_rules.csv` | Required treatment for each data category |
-| `evidence_files.csv` | Manifest of supplied evidence files |
-| `output.csv` | Blank output template |
-
-Evidence is stored under `dataset/evidence/` and may include PDFs, images, logs, JSON, plain text, or SQL snapshot exports. SQL captures may contain a primary database, regional replicas, a reporting replica, or a failover replica so replication drift can be investigated directly. The `.sql` files are readable as text and executable with SQLite.
-
-Only `deletion_requests.csv` requires answers. The other files provide evidence and context.
-
----
-
-## Output
-
-Create `output.csv` with these columns in this exact order:
+## ⚙️ How It Works
 
 ```text
-case_id,deletion_status,steps_json
+Deletion Request
+       |
+       v
+Data Ingestion
+       |
+       v
+Identity Resolution
+       |
+       v
+Search for Remaining Personal Data
+       |
+       v
+Policy Evaluation
+       |
+       v
+Sync / Import / Restore Analysis
+       |
+       v
+Evidence-Based Decision Engine
+       |
+       v
+Verification Status + Evidence
+       |
+       v
+Predictions CSV + Investigation Log
 ```
 
-Produce exactly one row per request. `deletion_status` is `COMPLETE`, `INCOMPLETE`, or `NOT_APPLICABLE`. `steps_json` is an ordered JSON array containing findings, remediation actions, and verification checks. Use an empty array (`[]`) for `NOT_APPLICABLE`. Evidence references may be a `file_id`, `activity_id`, or `audit_id`. Determine the resource state at `audit_at` from the available evidence; reported workflow statuses and operation results are claims. Use `dataset/sample_output.csv` as the format reference.
+## 🧩 Team Architecture
 
-The final file must contain 518 data rows sorted by `case_id` (plus the header row). The grader parses `steps_json` as JSON, so object-key order and whitespace do not matter; array order does. Order findings, remediation, and verification in that phase order. Within a phase, follow the operation order in the problem statement, then sort by `system_id` and `resource_id`.
+The project is divided into three independently testable modules.
 
----
+### Member 1 — Data Ingestion & Identity Resolution
 
-## Evaluation
+**Responsibilities:**
+- Load and normalize input datasets.
+- Extract identifiers and source metadata.
+- Resolve current and historical identifiers.
+- Identify ambiguous matches without silently treating them as confirmed.
+- Preserve evidence references for downstream investigation.
 
-`output.csv` will be compared with hidden canonical answers. Scoring considers:
+**Suggested files:**
+- `ingestion.py`
+- `identity.py`
+- `tests/test_identity.py`
 
-- deletion assessment accuracy;
-- current and historical identity resolution;
-- discovery of remaining data and recreation risks;
-- correct policy application and evidence references; and
-- completeness and ordering of remediation and verification steps.
+### Member 2 — Policy Engine & Resurrection Detection
 
-Your `code.zip` must include:
+**Responsibilities:**
+- Read the provided deletion rules.
+- Determine whether records require deletion, redaction, anonymization, or retention.
+- Identify possible sync, import, backup, or restoration paths.
+- Recommend remediation and verification steps based on available evidence.
+- Respect retention requirements and avoid unsupported conclusions.
 
-```text
-code/evaluation/evaluation_report.md
-code/evaluation/usage_report.md
-```
+**Suggested files:**
+- `policy.py`
+- `dependencies.py`
+- `tests/test_policy.py`
 
-- `evaluation_report.md` must cover case, row, field, and sequence accuracy, at least three additional evaluation cases created by you, failures found, and improvements made.
-- `usage_report.md` must cover the final full-dataset run, including model providers and names, model calls, input and output tokens, total and average tokens per request, and estimated total and per-request cost. Include per-model and overall totals when using multiple models.
+### Member 3 — Decision Engine, Evaluation & Output
 
-**Important:** Place `evaluation_report.md` and `usage_report.md` inside `code/evaluation/` (matching `code/evaluation/main.py` in this starter layout), write your complete evaluation metrics, custom evaluation test cases, and token/cost breakdowns directly inside those Markdown files, and keep prompts in source code or Markdown files. Automated code evaluation ignores raw data files (`.csv`, `.tsv`, `.json`, `.jsonl`, `.sql`, `.log`), so content stored only in those formats will not be visible to the code judge or AI interviewer.
+**Responsibilities:**
+- Combine findings from Members 1 and 2.
+- Determine the final verification status using the official definitions.
+- Generate the required predictions CSV.
+- Produce an auditable investigation transcript.
+- Run end-to-end tests and validate submission files.
 
----
+**Suggested files:**
+- `decision.py`
+- `output.py`
+- `evaluation.py`
+- `tests/test_pipeline.py`
 
-## Chat Transcript
+*These are proposed module names; adjust them to match the actual repository and hackathon's required interfaces.*
 
-This repository includes [`AGENTS.md`](./AGENTS.md), which instructs compatible AI coding tools to append conversation summaries to `log.txt` in the repository root:
+## 🛠️ Technology Stack
 
-| Platform | Path |
-| --- | --- |
-| macOS / Linux | `<repo root>/log.txt` |
-| Windows | `<repo root>\log.txt` |
+The implementation should prioritize tools that are free and compatible with the provided repository.
 
-- Always launch your AI coding agent from the repository root (or explicitly ask it to read `./AGENTS.md` first) so every turn is logged to `log.txt` with the required `User Prompt`, `Agent Response Summary`, `Actions`, and `Context` sections.
-- Upload `log.txt` directly as your `chat_transcript` submission on HackerRank.
-- Do not include API keys, tokens, credentials, or secrets in prompts, code, configuration, or `log.txt`.
+- **Language:** Python
+- **Data processing:** Python standard library and/or pandas
+- **Testing:** pytest
+- **Input formats:** CSV and other formats explicitly supported by the task
+- **AI coding assistant:** Google Antigravity with an available free-tier model
+- **Output formats:** CSV and plain-text logs
+- **Version control:** Git and GitHub
 
----
+Optional technologies, such as OCR libraries or a lightweight dashboard, should be added only if they improve the solution without risking the core deliverables.
 
-## Packaging `code.zip` and Submission
+## 🚀 Getting Started
 
-| Item | Description |
-| --- | --- |
-| `code.zip` | Runnable solution, prompts, configuration, `README.md`, and `evaluation/` reports |
-| `output.csv` | One answer row for each of the 518 requests in `dataset/deletion_requests.csv` |
-| `chat_transcript` | The root `log.txt` file generated by your coding agent |
-| AI interview | Live explanation of your architecture, approach, and evaluation |
-
-You may use any programming language, model, framework, or retrieval approach. Include clear setup and execution instructions in `README.md` inside `code.zip`.
-
-To package `code.zip` from the repository root without bundling the dataset:
-
-**macOS / Linux:**
+### 1. Clone the repository
 
 ```bash
-zip -r code.zip README.md code -x "*/__pycache__/*" "*/.venv/*" "*/venv/*" "*/node_modules/*" "*/.git/*" "*/.DS_Store"
+git clone <YOUR_REPOSITORY_URL>
+cd <YOUR_PROJECT_DIRECTORY>
 ```
 
-**Windows (PowerShell):**
+Replace the placeholders with your actual repository URL and directory name.
 
-```powershell
-Compress-Archive -Path README.md, code -DestinationPath code.zip -Force
+### 2. Create a virtual environment
+
+```bash
+python3 -m venv .venv
 ```
 
-When packaging `code.zip`:
+Activate it on macOS or Linux:
 
-- Keep your evaluation reports in `code/evaluation/` so they are bundled automatically with `code` (or add `evaluation` to the archive command above if you placed them in a top-level `evaluation/` directory).
-- Do **not** include `dataset/`, virtual environments (`.venv`, `venv`, `node_modules`), or build caches (`__pycache__`). On Windows, keep `.venv` at the repository root (outside `code/`) and remove any `code/__pycache__` folders before running `Compress-Archive`.
-- Do **not** include nested archives (`.zip`, `.tar`, `.gz`, `.tgz`, `.7z`, `.rar`) inside `code.zip` — submissions containing nested archive files will be rejected.
+```bash
+source .venv/bin/activate
+```
 
-Before submitting, confirm that:
+### 3. Install dependencies
 
-- `output.csv` has the exact header `case_id,deletion_status,steps_json` and contains all 518 data rows sorted by `case_id`;
-- every `steps_json` value is a valid JSON array with consecutive step numbers starting at `1`;
-- findings cite valid evidence IDs, and `COMPLETE` verification steps cite evidence proving the current state;
-- proposed remediation and future verification steps use an empty `evidence_id` (`""`);
-- `code.zip` includes your runnable code, `README.md`, `code/evaluation/evaluation_report.md`, and `code/evaluation/usage_report.md`;
-- `log.txt` follows the `AGENTS.md` turn format and is uploaded to the `chat_transcript` slot; and
-- no API keys, credentials, real personal data, or sensitive configuration values are included.
+If the repository contains a dependency file:
+
+```bash
+pip install -r requirements.txt
+```
+
+Install the testing dependency if it is not already included:
+
+```bash
+pip install pytest
+```
+
+Use the repository's existing dependency manager and instructions if they differ.
+
+### 4. Run the tests
+
+```bash
+python -m pytest -q
+```
+
+### 5. Run the application
+
+Use the actual entry point provided by the implementation. For example:
+
+```bash
+python main.py
+```
+
+If the project uses a different entry point or command, document and use that command instead.
+
+## 📂 Project Structure
+
+The following is a proposed layout, not a claim about files that already exist:
+
+```text
+ghosttrace-ai/
+├── README.md
+├── requirements.txt
+├── main.py
+├── ingestion.py
+├── identity.py
+├── policy.py
+├── dependencies.py
+├── decision.py
+├── output.py
+├── evaluation.py
+├── tests/
+│   ├── test_identity.py
+│   ├── test_policy.py
+│   └── test_pipeline.py
+├── predictions.csv
+└── log.txt
+```
+
+Keep the official input datasets and other supplied materials in their required locations. Follow the hackathon's submission instructions rather than moving or renaming required files.
+
+## 📊 Verification Results
+
+GhostTrace AI uses the task's official definitions for these statuses:
+
+| Status | Meaning |
+|---|---|
+| `COMPLETE` | Available evidence satisfies all applicable completion requirements. |
+| `INCOMPLETE` | Required deletion, remediation, or verification remains outstanding or unproven. |
+| `NOT_APPLICABLE` | The request or check does not apply under the official task rules. |
+
+The implementation must use the hackathon's exact status definitions and output schema if they differ from these summaries.
+
+Each result should include the evidence, relevant policy, unresolved findings, and required next steps wherever the output format permits.
+
+## 🧪 Testing Strategy
+
+Tests should cover:
+
+- Normalized identifiers and historical identity matches.
+- Ambiguous identity matches.
+- Records that must be deleted, redacted, anonymized, or retained.
+- Personal data found in multiple supported sources.
+- Active synchronization or import paths that could reintroduce data.
+- Missing evidence and unresolved verification checks.
+- Correct handling of all three verification statuses.
+- Exact output column names and valid CSV formatting.
+- End-to-end processing of a small, synthetic test dataset.
+
+Do not report evaluation accuracy or other performance metrics unless they have actually been measured against a valid ground-truth dataset.
+
+## 🔐 Privacy & Safety
+
+- Process only data that the project is authorized to inspect.
+- Avoid printing unnecessary personal information in logs.
+- Keep credentials, API keys, and secrets out of source control.
+- Preserve required audit evidence and records subject to retention policies.
+- Do not perform irreversible deletion or modification without the required authorization.
+- Distinguish confirmed findings from potential matches and unverified assumptions.
+- Do not claim that every copy has been deleted when some systems cannot be inspected.
+
+## 📦 Hackathon Submission Checklist
+
+- [ ] Source code is included.
+- [ ] Tests run successfully.
+- [ ] `predictions.csv` matches the required schema.
+- [ ] `log.txt` contains the required investigation transcript.
+- [ ] Policy and identity decisions have supporting evidence.
+- [ ] Incomplete or uncertain cases are handled honestly.
+- [ ] Required retention restrictions are respected.
+- [ ] Submission ZIP contains the necessary code and documentation.
+- [ ] Virtual environments, `node_modules`, build artifacts, and excluded datasets are omitted when required by the rules.
+- [ ] README commands match the actual working implementation.
+
+## 🌟 Why GhostTrace AI?
+
+GhostTrace AI focuses on **verifiable deletion, not just deletion claims**. By combining identity resolution, policy-aware investigation, resurrection detection, and auditable evidence, it aims to make privacy workflows more reliable and transparent.
+
+**Find every ghost. Prove every deletion.**
+
+---
+
+*Built for the GhostTrace AI hackathon project. Update this README as the implementation, repository structure, and official submission requirements are finalized.*
